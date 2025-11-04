@@ -334,6 +334,44 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/ErrorDetail"
+    post:
+      tags:
+        - 条目
+      summary: 批量获取条目
+      description: 一次最多请求 50 个条目，返回顺序与请求一致；若条目被重定向会在 `redirects` 字段标明
+      operationId: batchGetSubjects
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubjectBatchRequest"
+            examples:
+              default:
+                value:
+                  ids:
+                    - 1
+                    - 2
+                    - 8
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubjectBatchResponse"
+        "400":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorDetail"
+        "429":
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorDetail"
       security:
         - OptionalHTTPBearer: []
 
@@ -3225,6 +3263,39 @@ components:
       $ref: "./components/subject_v0_slim.yaml"
     SubjectTags:
       $ref: "./components/subject_tags.yaml"
+    SubjectBatchRequest:
+      type: object
+      required:
+        - ids
+      properties:
+        ids:
+          type: array
+          description: "条目 ID 列表，最多 50 个"
+          minItems: 1
+          maxItems: 50
+          items:
+            $ref: "#/components/schemas/SubjectID"
+    SubjectBatchResponse:
+      type: object
+      required:
+        - data
+        - missing
+      properties:
+        data:
+          type: array
+          description: 请求顺序返回的条目列表
+          items:
+            $ref: "#/components/schemas/Subject"
+        missing:
+          type: array
+          description: 未找到或无权限访问的 ID
+          items:
+            $ref: "#/components/schemas/SubjectID"
+        redirects:
+          type: object
+          description: 需要跳转的条目，键为请求的旧 ID，值为新的条目 ID
+          additionalProperties:
+            $ref: "#/components/schemas/SubjectID"
     SubjectType:
       $ref: "./components/subject_type.yaml"
     SubjectBookCategory:

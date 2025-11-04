@@ -202,6 +202,14 @@ type Count struct {
 	Field10 uint32 `json:"10"`
 }
 
+type SubjectBatch struct {
+	Data []SubjectV0 `json:"data"`
+	// Missing 保留处理后仍未找到或无权限访问的 ID，按首次出现的顺序返回。
+	Missing []model.SubjectID `json:"missing"`
+	// Redirects 记录需要跳转的新 ID，key 为请求的旧 ID。
+	Redirects map[model.SubjectID]model.SubjectID `json:"redirects,omitempty"`
+}
+
 type Rating struct {
 	Rank  uint32  `json:"rank"`
 	Total uint32  `json:"total"`
