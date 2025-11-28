@@ -296,7 +296,7 @@ paths:
             type: string
         - name: sort
           in: query
-          description: 排序，枚举值 {date|rank}
+          description: 排序，枚举值 {date|rank|trends}
           required: false
           schema:
             title: Sort Order

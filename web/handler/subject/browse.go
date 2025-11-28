@@ -109,7 +109,7 @@ func parseBrowseQuery(c echo.Context) (*subject.BrowseFilter, error) {
 	}
 	if sort := c.QueryParam("sort"); sort != "" {
 		switch sort {
-		case "rank", "date":
+		case "rank", "date", "trends":
 			filter.Sort = null.String{Value: sort, Set: true}
 		default:
 			return nil, res.BadRequest("unknown sort: " + sort)

@@ -22,6 +22,7 @@ import (
 
 	"github.com/trim21/errgo"
 	"go.uber.org/zap"
+	"gorm.io/gen/field"
 	"gorm.io/gorm"
 
 	"github.com/bangumi/server/dal/dao"
@@ -259,6 +260,8 @@ func (r mysqlRepo) Count(
 			q = q.Order(r.q.SubjectField.Date.Desc())
 		case "rank":
 			q = q.Where(r.q.SubjectField.Rank.Gt(0)).Order(r.q.SubjectField.Rank)
+		case "trends":
+			q = q.Order(trendsOrderExpr(r.q).Desc())
 		}
 	}
 
@@ -296,6 +299,8 @@ func (r mysqlRepo) Browse(
 			q = q.Order(r.q.SubjectField.Date.Desc())
 		case "rank":
 			q = q.Where(r.q.SubjectField.Rank.Gt(0)).Order(r.q.SubjectField.Rank)
+		case "trends":
+			q = q.Order(trendsOrderExpr(r.q).Desc())
 		}
 	}
 
@@ -335,4 +340,19 @@ func (r mysqlRepo) GetActors(
 	}
 
 	return results, nil
+}
+
+func trendsOrderExpr(q *query.Query) field.OrderExpr {
+	total := q.Subject.Wish.
+		AddCol(q.Subject.Done).
+		AddCol(q.Subject.Doing).
+		AddCol(q.Subject.OnHold).
+		AddCol(q.Subject.Dropped)
+
+	orderExpr, ok := total.(field.OrderExpr)
+	if !ok {
+		panic("subject trends expression must implement field.OrderExpr")
+	}
+
+	return orderExpr
 }

@@ -118,6 +118,24 @@ func TestBrowse(t *testing.T) {
 	require.Equal(t, model.SubjectID(7), s[0].ID)
 	require.Equal(t, model.SubjectID(6), s[1].ID)
 	require.Equal(t, model.SubjectID(13), s[2].ID)
+
+	filter = subject.BrowseFilter{
+		Type: 1,
+		Sort: null.New("trends"),
+	}
+	s, err = repo.Browse(context.Background(), filter, 30, 0)
+	require.NoError(t, err)
+	require.GreaterOrEqual(t, len(s), 2)
+	prev := collectionTotal(s[0])
+	for _, subject := range s[1:] {
+		current := collectionTotal(subject)
+		require.GreaterOrEqual(t, prev, current, "subjects should be ordered by collection total desc")
+		prev = current
+	}
+}
+
+func collectionTotal(s model.Subject) uint64 {
+	return uint64(s.Wish) + uint64(s.Collect) + uint64(s.Doing) + uint64(s.OnHold) + uint64(s.Dropped)
 }
 
 func TestMysqlRepo_GetByIDs(t *testing.T) {
